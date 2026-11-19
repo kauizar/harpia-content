@@ -8,3 +8,4 @@ Check this before picking a topic: never repeat a topic or angle from the last 3
 - 2026-11-16 | (manual) | Microsoft 365 global outage | published | —
 - 2026-11-17 | (not posted) | Nvidia record quarter without its founder | skipped | —
 - 2026-11-19 | 2026-11-19-gta6-launch | GTA VI launch day: hype vs. retention | published | https://www.instagram.com/p/Df7VsRgCNVN/
+- 2026-11-19 | 2026-11-19-vangogh | Van Gogh $190.4M record: price is a story | published | media id 17958553947313568
