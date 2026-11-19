@@ -6,6 +6,9 @@ Audience target: **US business owners and marketers**. Everything published is *
 
 ## The job, every run
 
+0. **Daily cap and queue (check first).**
+   - Count today's published lines in `LOG.md` (dates are US Eastern). The cap is **2 posts per day**. If 2 are already published today, do not post: report "cap reached" and stop.
+   - Open `QUEUE.md`. If a post is listed as `ready`, publish that one (its images and `caption.txt` are already in `posts/<slug>/`): skip steps 1 to 6, go straight to step 7 (URL check) and 8 (post), then move its line from `QUEUE.md` to `LOG.md`.
 1. **Pick a topic** that is trending in the US *today* (sport, gaming, tech, business, pop culture, a viral brand moment).
    - Run several web searches for today's US news and trends; confirm the story is from the last 24 to 48 hours.
    - Check `LOG.md`: never repeat a topic or angle from the last 30 days.
