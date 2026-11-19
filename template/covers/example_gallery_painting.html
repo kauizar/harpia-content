@@ -1,0 +1,82 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Anton;src:url(../../template/fonts/anton-latin-400-normal.woff2)}
+html,body{margin:0;background:#000}canvas{display:block}
+</style></head><body><canvas id="c" width="1080" height="1000"></canvas>
+<script>
+document.fonts.load('80px Anton').then(draw);
+function draw(){
+const c=document.getElementById('c'),x=c.getContext('2d'),W=1080,H=1000;
+let seed=42;const r=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+// dark gallery wall with texture
+let g=x.createRadialGradient(540,330,40,540,420,760);
+g.addColorStop(0,'#2b2a25');g.addColorStop(.5,'#141410');g.addColorStop(1,'#050505');
+x.fillStyle=g;x.fillRect(0,0,W,H);
+for(let i=0;i<9000;i++){x.fillStyle=`rgba(255,255,255,${r()*.025})`;x.fillRect(r()*W,r()*H,2,2)}
+// spotlight cone
+g=x.createLinearGradient(0,0,0,700);g.addColorStop(0,'rgba(255,240,200,.22)');g.addColorStop(1,'rgba(255,240,200,0)');
+x.fillStyle=g;x.beginPath();x.moveTo(470,0);x.lineTo(610,0);x.lineTo(900,720);x.lineTo(180,720);x.closePath();x.fill();
+// painting area
+const px=270,py=150,pw=540,ph=430;
+// frame shadow
+x.fillStyle='rgba(0,0,0,.6)';x.filter='blur(30px)';x.fillRect(px-40,py-20,pw+80,ph+110);x.filter='none';
+// gold frame
+function frame(o,col){x.fillStyle=col;x.fillRect(px-o,py-o,pw+o*2,ph+o*2)}
+g=x.createLinearGradient(px-60,py-60,px+pw+60,py+ph+60);
+g.addColorStop(0,'#7a5a1e');g.addColorStop(.25,'#e8c66a');g.addColorStop(.5,'#9b7428');g.addColorStop(.75,'#f2d27a');g.addColorStop(1,'#6b4c16');
+x.fillStyle=g;x.fillRect(px-58,py-58,pw+116,ph+116);
+x.strokeStyle='rgba(60,40,10,.7)';x.lineWidth=3;
+for(const o of [52,38,26,14]){x.strokeRect(px-o,py-o,pw+o*2,ph+o*2)}
+for(let i=0;i<70;i++){const t=i/70;x.fillStyle='rgba(255,235,170,.35)';
+ x.beginPath();x.arc(px-45+(pw+90)*t,py-45,3,0,7);x.fill();x.beginPath();x.arc(px-45+(pw+90)*t,py+ph+45,3,0,7);x.fill();}
+// canvas: Van Gogh-inspired swirling brushstrokes
+x.save();x.beginPath();x.rect(px,py,pw,ph);x.clip();
+g=x.createLinearGradient(0,py,0,py+ph);g.addColorStop(0,'#1d3f8a');g.addColorStop(.55,'#3c6fb8');g.addColorStop(1,'#2d5a3a');
+x.fillStyle=g;x.fillRect(px,py,pw,ph);
+const noise=(a,b)=>Math.sin(a*.012+Math.cos(b*.017)*2.2)+Math.cos(b*.011-Math.sin(a*.009)*1.7);
+function strokeAt(sx,sy,len,cols,wid){
+ let X=sx,Y=sy;x.strokeStyle=cols[Math.floor(r()*cols.length)];x.lineWidth=wid;x.lineCap='round';x.beginPath();x.moveTo(X,Y);
+ for(let k=0;k<len;k++){const a=noise(X,Y)*Math.PI;X+=Math.cos(a)*3;Y+=Math.sin(a)*3;x.lineTo(X,Y)}x.stroke();}
+// sky swirls
+for(let i=0;i<2600;i++){const sx=px+r()*pw,sy=py+r()*ph*.62;strokeAt(sx,sy,6+r()*8,['#1b3a86','#2c5fb3','#4a86d4','#8fb8e8','#c9dcf2','#24489c'],3+r()*3)}
+// moon/sun swirl
+for(let k=0;k<420;k++){const a=r()*Math.PI*2,rad=r()*60;const cx=px+pw*.78+Math.cos(a)*rad,cy=py+ph*.2+Math.sin(a)*rad;
+ x.strokeStyle=['#ffe27a','#f5c542','#fff3b0','#e8a52a'][Math.floor(r()*4)];x.lineWidth=3+r()*2;x.beginPath();x.arc(px+pw*.78,py+ph*.2,rad,a,a+.4);x.stroke();}
+// ground
+for(let i=0;i<1800;i++){const sx=px+r()*pw,sy=py+ph*.6+r()*ph*.4;strokeAt(sx,sy,4+r()*6,['#2f5a2b','#4c7a33','#7aa23f','#c2b54a','#1f3d22'],3+r()*3)}
+// chestnut trees: dark trunks + blossom clusters
+function tree(tx,base,h,s){
+ x.strokeStyle='#2a1c12';x.lineWidth=16*s;x.lineCap='round';x.beginPath();x.moveTo(tx,base);x.quadraticCurveTo(tx+10*s,base-h*.5,tx-6*s,base-h);x.stroke();
+ for(let b=0;b<5;b++){x.lineWidth=7*s;x.beginPath();x.moveTo(tx,base-h*(.45+b*.1));x.lineTo(tx+(r()-.5)*160*s,base-h*(.75+r()*.35));x.stroke()}
+ for(let k=0;k<900*s;k++){const a=r()*Math.PI*2,d=Math.sqrt(r())*120*s;
+  const bx=tx+Math.cos(a)*d*1.2,by=base-h-10*s+Math.sin(a)*d*.85;
+  x.strokeStyle=r()<.62?['#1f5a2e','#2f7a3a','#4e9a44','#173f22'][Math.floor(r()*4)]:['#fff8e8','#ffe9f0','#f7d4dc','#ffffff'][Math.floor(r()*4)];
+  x.lineWidth=3+r()*3;const aa=r()*Math.PI;x.beginPath();x.moveTo(bx,by);x.lineTo(bx+Math.cos(aa)*8,by+Math.sin(aa)*8);x.stroke();}
+}
+tree(px+pw*.3,py+ph+20,300,1.15);tree(px+pw*.68,py+ph+30,250,.95);
+// path
+for(let i=0;i<500;i++){const t=r(),sx=px+pw*.45+(t-.5)*pw*.5*(1-r()*.5),sy=py+ph*.78+r()*ph*.22;x.strokeStyle=['#d8b24a','#e9cd6c','#b8892e'][Math.floor(r()*3)];x.lineWidth=3;x.beginPath();x.moveTo(sx,sy);x.lineTo(sx+6+r()*6,sy+2);x.stroke()}
+// varnish sheen
+g=x.createLinearGradient(px,py,px+pw,py+ph);g.addColorStop(0,'rgba(255,255,255,.10)');g.addColorStop(.4,'rgba(255,255,255,0)');g.addColorStop(1,'rgba(0,0,0,.18)');
+x.fillStyle=g;x.fillRect(px,py,pw,ph);x.restore();
+// museum label "SOLD" plaque
+x.fillStyle='#e9e4d6';x.fillRect(px+pw+60,py+ph-30,132,70);
+x.fillStyle='#22D11E';x.fillRect(px+pw+60,py+ph-30,132,8);
+x.fillStyle='#1a1a1a';x.font='700 12px sans-serif';x.fillText('VAN GOGH, 1890',px+pw+72,py+ph);x.font='600 12px sans-serif';x.fillText('$190,400,000',px+pw+72,py+ph+20);
+// floor/bench line
+g=x.createLinearGradient(0,760,0,H);g.addColorStop(0,'#0c0c0a');g.addColorStop(1,'#020202');x.fillStyle=g;x.fillRect(0,760,W,H-760);
+// auction paddles raised (silhouettes) with green number
+function paddle(cx,cy,ang,num,s){x.save();x.translate(cx,cy);x.rotate(ang);x.scale(s,s);
+ x.fillStyle='#050505';x.fillRect(-9,0,18,260);
+ x.beginPath();x.ellipse(0,-70,78,92,0,0,7);x.fill();
+ x.fillStyle='#f3f1ea';x.beginPath();x.ellipse(0,-70,66,80,0,0,7);x.fill();
+ x.fillStyle='#0a0a0a';x.font='64px Anton';x.textAlign='center';x.fillText(num,0,-46);
+ x.fillStyle='#22D11E';x.fillRect(-40,-130,80,8);x.restore();}
+// heads silhouettes
+x.fillStyle='#030303';
+for(let i=0;i<9;i++){const hx=60+i*125+(r()-.5)*30,hy=900+(r()-.5)*30;x.beginPath();x.arc(hx,hy,46,0,7);x.fill();x.fillRect(hx-75,hy+30,150,200)}
+paddle(330,770,-.12,'190',1);paddle(800,800,.15,'88',.82);
+// grain
+const id=x.getImageData(0,0,W,H);for(let i=0;i<id.data.length;i+=4){const n=(r()-.5)*14;id.data[i]+=n;id.data[i+1]+=n;id.data[i+2]+=n}x.putImageData(id,0,0);
+document.body.dataset.done=1;
+}
+</script></body></html>

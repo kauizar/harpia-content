@@ -1,0 +1,72 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;background:#000}canvas{display:block}
+</style></head><body><canvas id="c" width="1080" height="1000"></canvas>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d'),W=1080,H=1000;
+let seed=7;const r=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+// sky
+const horizon=610;
+let g=x.createLinearGradient(0,0,0,horizon);
+g.addColorStop(0,'#0b0420');g.addColorStop(.35,'#3a0f5c');g.addColorStop(.62,'#b0306e');g.addColorStop(.85,'#ff7a45');g.addColorStop(1,'#ffc06a');
+x.fillStyle=g;x.fillRect(0,0,W,horizon);
+// stars
+for(let i=0;i<140;i++){x.fillStyle=`rgba(255,255,255,${r()*.7})`;x.fillRect(r()*W,r()*260,1.6,1.6)}
+// sun
+const sx=540,sy=470,sr=230;
+x.save();x.beginPath();x.arc(sx,sy,sr,0,Math.PI*2);x.clip();
+g=x.createLinearGradient(0,sy-sr,0,sy+sr);g.addColorStop(0,'#fff27a');g.addColorStop(.5,'#ff9a3c');g.addColorStop(1,'#ff2d7a');
+x.fillStyle=g;x.fillRect(sx-sr,sy-sr,sr*2,sr*2);
+x.fillStyle='#b0306e';
+for(let i=0;i<9;i++){const yy=sy+20+i*22;x.fillRect(sx-sr,yy,sr*2,3+i*1.6)}
+x.restore();
+x.shadowColor='#ff5fa0';x.shadowBlur=120;x.beginPath();x.arc(sx,sy,sr-4,Math.PI,0);x.strokeStyle='rgba(255,150,120,.25)';x.lineWidth=6;x.stroke();x.shadowBlur=0;
+// skyline
+function skyline(base,maxH,col,n,lit){
+ x.fillStyle=col;let px=-20;
+ while(px<W+20){const w=30+r()*70,h=maxH*(.3+r()*.7);x.fillRect(px,base-h,w,h);
+  if(lit){for(let wy=base-h+12;wy<base-8;wy+=16)for(let wx=px+6;wx<px+w-6;wx+=12)if(r()<.28){x.fillStyle=r()<.5?'rgba(255,210,120,.85)':'rgba(120,255,230,.7)';x.fillRect(wx,wy,4,6)}x.fillStyle=col}
+  if(r()<.15){x.fillRect(px+w/2-2,base-h-40,4,40)}
+  px+=w+2}
+}
+skyline(horizon,230,'#2a0b3e',0,false);
+skyline(horizon,170,'#16061f',0,true);
+// water
+g=x.createLinearGradient(0,horizon,0,H);g.addColorStop(0,'#3b1250');g.addColorStop(1,'#07030c');
+x.fillStyle=g;x.fillRect(0,horizon,W,H-horizon);
+// sun reflection
+for(let i=0;i<26;i++){const yy=horizon+8+i*14,w=(260-i*7)*(.6+r()*.6);x.fillStyle=`rgba(255,${120+i*3},120,${.55-i*.018})`;x.fillRect(sx-w/2+(r()-.5)*30,yy,w,4)}
+// neon grid road
+x.strokeStyle='rgba(34,209,30,.55)';x.lineWidth=2;x.shadowColor='#22D11E';x.shadowBlur=14;
+for(let i=-12;i<=12;i++){x.beginPath();x.moveTo(sx+i*8,horizon+4);x.lineTo(sx+i*150,H);x.stroke()}
+for(let i=1;i<14;i++){const t=i/14,yy=horizon+4+(H-horizon)*t*t;x.globalAlpha=.3+t*.6;x.beginPath();x.moveTo(0,yy);x.lineTo(W,yy);x.stroke()}
+x.globalAlpha=1;x.shadowBlur=0;
+// palms
+function palm(bx,by,h,lean,s){
+ x.strokeStyle='#05020a';x.fillStyle='#05020a';x.lineCap='round';
+ const tx=bx+lean,ty=by-h;
+ x.lineWidth=18*s;x.beginPath();x.moveTo(bx,by);x.quadraticCurveTo(bx+lean*.2,by-h*.5,tx,ty);x.stroke();
+ for(let k=0;k<10;k++){const a=-Math.PI/2+(k-4.5)*.4+(r()-.5)*.12,len=(190+r()*70)*s;
+  const ex=tx+Math.cos(a)*len*1.1,ey=ty+Math.sin(a)*len*.45+len*.55;
+  const cx=tx+Math.cos(a)*len*.55,cy=ty+Math.sin(a)*len*.7-50*s;
+  // leaf as filled tapered shape: spine + serrated edges
+  const pts=24,top=[],bot=[];
+  for(let i=0;i<=pts;i++){const t=i/pts,u=1-t;
+   const px=u*u*tx+2*u*t*cx+t*t*ex,py=u*u*ty+2*u*t*cy+t*t*ey;
+   const dx=2*u*(cx-tx)+2*t*(ex-cx),dy=2*u*(cy-ty)+2*t*(ey-cy),l=Math.hypot(dx,dy)||1;
+   const nx=-dy/l,ny=dx/l,w=Math.sin(Math.PI*Math.min(1,t*1.15))*26*s*(i%2?1:.55);
+   top.push([px+nx*w,py+ny*w]);bot.push([px-nx*w*.6,py-ny*w*.6]);}
+  x.beginPath();x.moveTo(tx,ty);top.forEach(p=>x.lineTo(p[0],p[1]));bot.reverse().forEach(p=>x.lineTo(p[0],p[1]));x.closePath();x.fill();}
+ x.beginPath();x.arc(tx,ty,14*s,0,7);x.fill();
+}
+palm(80,H,760,110,1.15);palm(990,H,690,-120,1.05);palm(860,H,430,-60,.7);
+x.save();x.translate(-190,-80);
+// helicopter silhouette w/ green light
+x.fillStyle='#05020a';x.beginPath();x.ellipse(770,210,34,13,-.08,0,Math.PI*2);x.fill();
+x.fillRect(800,205,60,5);x.fillRect(855,196,5,18);x.fillRect(715,190,110,3);x.fillRect(765,192,4,10);
+x.fillStyle='#22D11E';x.shadowColor='#22D11E';x.shadowBlur=20;x.beginPath();x.arc(745,214,4,0,7);x.fill();x.shadowBlur=0;
+// searchlight
+g=x.createLinearGradient(745,214,620,600);g.addColorStop(0,'rgba(140,255,140,.35)');g.addColorStop(1,'rgba(140,255,140,0)');
+x.fillStyle=g;x.beginPath();x.moveTo(745,214);x.lineTo(560,610);x.lineTo(700,610);x.closePath();x.fill();x.restore();
+// grain
+const id=x.getImageData(0,0,W,H);for(let i=0;i<id.data.length;i+=4){const n=(r()-.5)*18;id.data[i]+=n;id.data[i+1]+=n;id.data[i+2]+=n}x.putImageData(id,0,0);
+</script></body></html>
