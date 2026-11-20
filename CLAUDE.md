@@ -8,7 +8,7 @@ Audience target: **US business owners and marketers**. Everything published is *
 
 0. **Daily cap and queue (check first).**
    - Count today's published lines in `LOG.md` (dates are US Eastern). The cap is **2 posts per day**. If 2 are already published today, do not post: report "cap reached" and stop.
-   - Open `QUEUE.md`. If a post is listed as `ready`, publish that one (its images and `caption.txt` are already in `posts/<slug>/`): skip steps 1 to 6, go straight to step 7 (URL check) and 8 (post), then move its line from `QUEUE.md` to `LOG.md`.
+   - Open `QUEUE.md`. If a post is listed as `ready`, publish that one (its images and `caption.txt` are already in `posts/<slug>/`): skip steps 1 to 6, go straight to step 7 (URL check) and 8 (post; if `story.jpg` is missing, render it first as in step 5), then move its line from `QUEUE.md` to `LOG.md`.
 1. **Pick a topic** that is trending in the US *today* (sport, gaming, tech, business, pop culture, a viral brand moment).
    - Run several web searches for today's US news and trends; confirm the story is from the last 24 to 48 hours.
    - Check `LOG.md`: never repeat a topic or angle from the last 30 days.
@@ -30,18 +30,22 @@ Audience target: **US business owners and marketers**. Everything published is *
 5. **Build the slides**: `cp template/carousel_template.html posts/<slug>/carousel.html`, edit the text of the 4 sections (keep the classes and structure), keep `cover.png` as the cover image.
    - Render: `python3 tools/render_carousel.py posts/<slug>/carousel.html` → `01.jpg … 04.jpg` (1080×1350 JPEG, the only size the Instagram API accepts for our grid).
    - **Look at every slide** with the Read tool. Fix: text overflowing or touching edges, overlaps, a single word alone on the last line, typos. Re-render until clean.
+   - **Story**: `python3 tools/render_story.py posts/<slug>` → `story.jpg` (1080×1920, built from `01.jpg` with "NEW POST" + "Full breakdown on our feed." + `DM “GROW”`). Look at it with the Read tool too.
 6. **Write the caption** in `posts/<slug>/caption.txt`, following the best-performing pattern:
    - Line 1: the hook (shows before "more"). Then 1 to 2 lines of context.
    - 3 to 5 lessons as `→` bullets.
    - A question to drive comments, then `DM us "GROW".`
    - 4 to 5 niche hashtags (e.g. #marketingstrategy #businessgrowth #brandstrategy + 1 topic tag). Never unrelated location tags.
 7. **Publish the images**: `git add posts/<slug> && git commit && git push`. Image URLs are
-   `https://raw.githubusercontent.com/kauizar/harpia-content/main/posts/<slug>/01.jpg` (…04.jpg).
+   `https://raw.githubusercontent.com/kauizar/harpia-content/main/posts/<slug>/01.jpg` (…04.jpg), plus `…/story.jpg`.
    Wait ~30 s after pushing, then confirm each URL returns HTTP 200 with `curl -sI`.
 8. **Post** with the Windsor.ai connector: `execute_action` connector `instagram`, account `17841468997695687`,
    action `create_carousel_post`, params `{"image_urls": [...4 urls in order...], "caption": "<caption.txt>"}`.
    Post exactly once. If it fails, read the error, fix the cause (URL not reachable, size, format) and retry once at most.
-9. **Log it**: add a line to `LOG.md` (date | slug | topic | published | permalink if returned), commit and push.
+   **Then the story** (only after the carousel is live): `execute_action` connector `instagram`, same account, action `create_story`,
+   params `{"image_url": "https://raw.githubusercontent.com/kauizar/harpia-content/main/posts/<slug>/story.jpg"}`. Stories take no caption.
+   Post it exactly once; retry once at most. A failed story never blocks or undoes the carousel: log it and mention it in the report. Stories do not count toward the daily cap.
+9. **Log it**: add a line to `LOG.md` (date | slug | topic | published | permalink if returned | story: ok / failed), commit and push.
 10. **Report** to the user in Portuguese (they are Brazilian): topic chosen and why, the headline, and the post link. Keep it to a few lines.
 
 ## Brand system (already in the template)
