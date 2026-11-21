@@ -1,0 +1,89 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;background:#000}canvas{display:block}
+</style></head><body><canvas id="c" width="1080" height="1000"></canvas>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d'),W=1080,H=1000;
+let seed=11;const r=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+// night sky
+let g=x.createLinearGradient(0,0,0,520);g.addColorStop(0,'#03060a');g.addColorStop(1,'#0d1a22');
+x.fillStyle=g;x.fillRect(0,0,W,H);
+// stadium bowl (upper decks)
+const rim=330;
+x.fillStyle='#081016';x.beginPath();x.moveTo(0,rim-120);x.quadraticCurveTo(540,rim-210,W,rim-120);x.lineTo(W,470);x.lineTo(0,470);x.fill();
+// seat rows with crowd specks (empty seats mostly)
+for(let row=0;row<26;row++){const t=row/26,y0=rim-150+row*14+t*t*40;
+ x.strokeStyle=`rgba(40,70,85,${.25+t*.25})`;x.lineWidth=2;x.beginPath();x.moveTo(0,y0+40);x.quadraticCurveTo(540,y0-50,W,y0+40);x.stroke();
+ for(let i=0;i<60;i++){const px=r()*W,dy=Math.pow((px-540)/540,2)*90;if(r()<.12){x.fillStyle=`rgba(${150+r()*80},${160+r()*60},${170},.35)`;x.fillRect(px,y0-50+dy+40-46*(1-Math.pow((px-540)/540,2))+46,2,2)}}}
+// floodlight towers
+function tower(tx,ty,s){
+ x.fillStyle='#04080b';x.fillRect(tx-4*s,ty,8*s,260);
+ for(let i=0;i<4;i++)for(let j=0;j<6;j++){const lx=tx-48*s+j*17*s,ly=ty-40*s+i*15*s;
+  x.fillStyle='#fffdf2';x.shadowColor='#e9f6ff';x.shadowBlur=30;x.fillRect(lx,ly,12*s,10*s)}
+ x.shadowBlur=0;
+ const gr=x.createRadialGradient(tx,ty-10,0,tx,ty-10,260*s);gr.addColorStop(0,'rgba(235,248,255,.55)');gr.addColorStop(.3,'rgba(180,220,255,.15)');gr.addColorStop(1,'rgba(180,220,255,0)');
+ x.fillStyle=gr;x.fillRect(tx-300*s,ty-300*s,600*s,600*s);
+}
+tower(150,120,1.15);tower(930,120,1.15);tower(400,175,.6);tower(680,175,.6);
+// light beams down to field
+function beam(sx,sy,ex1,ex2,ey,a){const gb=x.createLinearGradient(sx,sy,(ex1+ex2)/2,ey);gb.addColorStop(0,`rgba(220,240,255,${a})`);gb.addColorStop(1,'rgba(220,240,255,0)');x.fillStyle=gb;x.beginPath();x.moveTo(sx-30,sy);x.lineTo(sx+30,sy);x.lineTo(ex2,ey);x.lineTo(ex1,ey);x.fill()}
+x.globalCompositeOperation='lighter';
+beam(150,120,300,620,700,.10);beam(930,120,460,780,700,.10);
+x.globalCompositeOperation='source-over';
+// field in perspective
+const fy=460;
+g=x.createLinearGradient(0,fy,0,H);g.addColorStop(0,'#0f3a18');g.addColorStop(.5,'#0a2711');g.addColorStop(1,'#040c06');
+x.fillStyle=g;x.beginPath();x.moveTo(-900,H);x.lineTo(-40,fy);x.lineTo(1120,fy);x.lineTo(1980,H);x.fill();
+// mow stripes
+for(let i=0;i<12;i++){const t0=i/12,t1=(i+.5)/12;const y0=fy+(H-fy)*t0*t0,y1=fy+(H-fy)*t1*t1;x.fillStyle='rgba(255,255,255,.025)';x.fillRect(0,y0,W,y1-y0)}
+// yard lines (converging)
+x.strokeStyle='rgba(235,245,235,.55)';x.lineWidth=3;
+for(let i=-6;i<=6;i++){x.beginPath();x.moveTo(540+i*63,fy);x.lineTo(540+i*240,H);x.stroke()}
+// midfield spotlight pool
+let sp=x.createRadialGradient(540,570,10,540,570,330);sp.addColorStop(0,'rgba(240,255,235,.45)');sp.addColorStop(.5,'rgba(120,255,110,.12)');sp.addColorStop(1,'rgba(0,0,0,0)');
+x.save();x.scale(1,.42);x.fillStyle=sp;x.beginPath();x.arc(540,570/.42,330,0,7);x.fill();x.restore();
+// spotlight cone from above
+x.globalCompositeOperation='lighter';
+let cg=x.createLinearGradient(540,0,540,660);cg.addColorStop(0,'rgba(200,255,200,0)');cg.addColorStop(.6,'rgba(200,255,200,.06)');cg.addColorStop(1,'rgba(200,255,200,.16)');
+x.fillStyle=cg;x.beginPath();x.moveTo(500,0);x.lineTo(580,0);x.lineTo(720,590);x.lineTo(360,590);x.fill();
+x.globalCompositeOperation='source-over';
+// shadow under helmet
+x.fillStyle='rgba(0,0,0,.6)';x.beginPath();x.ellipse(550,583,175,26,0,0,7);x.fill();
+// helmet (generic, no logo) facing left
+const hx=560,hy=455;
+x.save();
+let hg=x.createRadialGradient(hx-60,hy-110,10,hx,hy-40,230);hg.addColorStop(0,'#f4fff2');hg.addColorStop(.18,'#8a9690');hg.addColorStop(.55,'#1c2420');hg.addColorStop(1,'#050807');
+x.fillStyle=hg;
+x.beginPath();
+x.moveTo(hx-150,hy+40);
+x.bezierCurveTo(hx-175,hy-90,hx-60,hy-190,hx+40,hy-185);
+x.bezierCurveTo(hx+150,hy-180,hx+205,hy-80,hx+190,hy+30);
+x.bezierCurveTo(hx+185,hy+90,hx+150,hy+120,hx+95,hy+122);
+x.lineTo(hx+20,hy+118);
+x.bezierCurveTo(hx-10,hy+80,hx-40,hy+50,hx-90,hy+48);
+x.closePath();x.fill();
+// green stripe down the crown
+x.strokeStyle='#22D11E';x.lineWidth=16;x.shadowColor='#22D11E';x.shadowBlur=24;
+x.beginPath();x.moveTo(hx-120,hy-110);x.bezierCurveTo(hx-60,hy-185,hx+60,hy-195,hx+150,hy-130);x.stroke();x.shadowBlur=0;
+// ear hole
+x.fillStyle='#020403';x.beginPath();x.ellipse(hx+70,hy+20,22,26,0,0,7);x.fill();
+x.strokeStyle='rgba(255,255,255,.18)';x.lineWidth=3;x.stroke();
+// specular highlight
+x.fillStyle='rgba(255,255,255,.55)';x.beginPath();x.ellipse(hx-55,hy-120,38,12,-.6,0,7);x.fill();
+// facemask (grey bars)
+x.strokeStyle='#b9c2bc';x.lineWidth=11;x.lineCap='round';
+x.beginPath();x.moveTo(hx-140,hy-10);x.bezierCurveTo(hx-215,hy-5,hx-225,hy+80,hx-170,hy+110);x.lineTo(hx-20,hy+115);x.stroke();
+x.beginPath();x.moveTo(hx-150,hy+45);x.bezierCurveTo(hx-200,hy+45,hx-205,hy+65,hx-200,hy+70);x.stroke();
+x.beginPath();x.moveTo(hx-100,hy+48);x.lineTo(hx-115,hy+112);x.stroke();
+x.beginPath();x.moveTo(hx-175,hy+5);x.lineTo(hx-185,hy+105);x.stroke();
+x.restore();
+// paper scraps (torn contract) drifting
+function scrap(px,py,w,h,a,al){x.save();x.translate(px,py);x.rotate(a);x.fillStyle=`rgba(236,240,232,${al})`;x.beginPath();x.moveTo(-w/2,-h/2);x.lineTo(w/2,-h/2+4);x.lineTo(w/2-6,h/2);x.lineTo(-w/2+5,h/2-3);x.fill();
+ x.fillStyle=`rgba(40,50,45,${al*.5})`;for(let l=0;l<4;l++)x.fillRect(-w/2+8,-h/2+8+l*(h/5),w*.7*(.6+r()*.4),2);x.restore()}
+for(let i=0;i<14;i++){scrap(120+r()*840,70+r()*420,26+r()*40,34+r()*44,(r()-.5)*2.4,.35+r()*.5)}
+// mist
+for(let i=0;i<40;i++){const mx=r()*W,my=470+r()*120;const mg=x.createRadialGradient(mx,my,0,mx,my,160);mg.addColorStop(0,'rgba(200,230,220,.05)');mg.addColorStop(1,'rgba(200,230,220,0)');x.fillStyle=mg;x.fillRect(mx-160,my-160,320,320)}
+// vignette
+let v=x.createRadialGradient(540,420,250,540,500,820);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.7)');x.fillStyle=v;x.fillRect(0,0,W,H);
+// grain
+const id=x.getImageData(0,0,W,H);for(let i=0;i<id.data.length;i+=4){const n=(r()-.5)*20;id.data[i]+=n;id.data[i+1]+=n;id.data[i+2]+=n}x.putImageData(id,0,0);
+</script></body></html>
