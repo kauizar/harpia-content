@@ -1,0 +1,61 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;background:#000}canvas{display:block}
+</style></head><body><canvas id="c" width="1080" height="1000"></canvas>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d'),W=1080,H=1000;
+let seed=7;const r=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+// sky: deep night with green horizon glow
+let g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#030605');g.addColorStop(.38,'#07110b');g.addColorStop(.52,'#0d2414');g.addColorStop(1,'#020302');
+x.fillStyle=g;x.fillRect(0,0,W,H);
+// stars
+for(let i=0;i<160;i++){x.fillStyle=`rgba(220,240,225,${r()*.5})`;x.fillRect(r()*W,r()*260,r()*2+.4,r()*2+.4)}
+// distant skyline silhouettes
+const HZ=470;
+for(let i=0;i<46;i++){const bw=20+r()*50,bh=30+r()*170,bx=i*24-20;x.fillStyle=`rgb(${8+r()*6},${14+r()*8},${11+r()*6})`;x.fillRect(bx,HZ-bh,bw,bh);
+ for(let k=0;k<bh/14;k++)for(let j=0;j<bw/10;j++){if(r()<.13){x.fillStyle=`rgba(${r()<.3?'34,209,30':'255,220,160'},${.25+r()*.4})`;x.fillRect(bx+3+j*10,HZ-bh+5+k*14,4,6)}}}
+// ground plane with perspective grid (city map)
+g=x.createLinearGradient(0,HZ,0,H);g.addColorStop(0,'#08140c');g.addColorStop(1,'#010201');x.fillStyle=g;x.fillRect(0,HZ,W,H-HZ);
+const VX=540,VY=HZ-10;
+x.strokeStyle='rgba(34,209,30,.10)';x.lineWidth=1.4;
+for(let i=-30;i<=30;i++){x.beginPath();x.moveTo(VX,VY);x.lineTo(VX+i*90,H);x.stroke()}
+for(let k=1;k<26;k++){const t=Math.pow(k/26,2.1),yy=VY+(H-VY)*t;x.globalAlpha=Math.min(1,t*3);x.beginPath();x.moveTo(0,yy);x.lineTo(W,yy);x.stroke()}x.globalAlpha=1;
+// big store at center horizon
+const SX=300,SW=480,SY=330,SH=150;
+x.save();x.shadowColor='rgba(34,209,30,.55)';x.shadowBlur=90;
+g=x.createLinearGradient(0,SY,0,SY+SH);g.addColorStop(0,'#1a231d');g.addColorStop(1,'#0c120e');x.fillStyle=g;x.fillRect(SX,SY,SW,SH);x.restore();
+// roof edge glow
+x.fillStyle='#22D11E';x.fillRect(SX-6,SY-6,SW+12,7);
+g=x.createRadialGradient(540,SY,10,540,SY,320);g.addColorStop(0,'rgba(34,209,30,.30)');g.addColorStop(1,'rgba(34,209,30,0)');x.fillStyle=g;x.fillRect(0,SY-320,W,320);
+// glowing entrance + windows
+g=x.createLinearGradient(0,SY+60,0,SY+SH);g.addColorStop(0,'rgba(255,245,215,.95)');g.addColorStop(1,'rgba(255,210,140,.7)');x.fillStyle=g;x.fillRect(SX+190,SY+62,100,SH-62);
+for(let i=0;i<6;i++){x.fillStyle='rgba(255,236,190,.55)';x.fillRect(SX+22+i*28,SY+80,18,40);x.fillRect(SX+310+i*28,SY+80,18,40)}
+// loading bays with light spill
+for(let i=0;i<4;i++){x.fillStyle='rgba(34,209,30,.85)';x.fillRect(SX+30+i*110,SY+SH-6,70,6)}
+// blank sign panel (no logo)
+x.fillStyle='rgba(34,209,30,.18)';x.fillRect(SX+150,SY+18,180,30);x.strokeStyle='rgba(34,209,30,.8)';x.lineWidth=2;x.strokeRect(SX+150,SY+18,180,30);
+// light trails radiating from the store across the city: delivery routes
+function trail(ex,ey,w,col,cx1,cy1){const sx=SX+SW/2+(ex-540)*.25,sy=SY+SH;
+ for(let p=0;p<3;p++){x.strokeStyle=`rgba(${col},${[.10,.25,.9][p]})`;x.lineWidth=[w*6,w*2.5,w][p];x.lineCap='round';x.beginPath();x.moveTo(sx,sy);x.quadraticCurveTo(cx1,cy1,ex,ey);x.stroke()}
+ // head
+ const hg=x.createRadialGradient(ex,ey,0,ex,ey,30);hg.addColorStop(0,'rgba(255,255,240,.95)');hg.addColorStop(1,`rgba(${col},0)`);x.fillStyle=hg;x.beginPath();x.arc(ex,ey,30,0,7);x.fill()}
+x.globalCompositeOperation='lighter';
+const T=[[-60,760,3.2,'34,209,30',260,560],[60,1000,3.6,'34,209,30',380,700],[300,1040,3,'120,255,110',470,760],[790,1040,3,'34,209,30',620,760],[1020,1010,3.6,'120,255,110',720,700],[1140,780,3.2,'34,209,30',830,560],[160,560,2,'255,200,120',360,520],[940,580,2,'255,200,120',740,520],[540,1060,4.2,'200,255,190',540,800]];
+T.forEach(t=>trail(...t));
+// little route nodes (homes) pulsing
+for(let i=0;i<34;i++){const px=r()*W,py=HZ+40+r()*(H-HZ-60);const rg=x.createRadialGradient(px,py,0,px,py,14);rg.addColorStop(0,'rgba(180,255,170,.7)');rg.addColorStop(1,'rgba(34,209,30,0)');x.fillStyle=rg;x.beginPath();x.arc(px,py,14,0,7);x.fill()}
+x.globalCompositeOperation='source-over';
+// stopwatch ring hovering above the store
+const CX=540,CY=175,R=95;
+x.save();x.shadowColor='rgba(34,209,30,.8)';x.shadowBlur=40;x.strokeStyle='rgba(34,209,30,.25)';x.lineWidth=14;x.beginPath();x.arc(CX,CY,R,0,7);x.stroke();
+x.strokeStyle='#22D11E';x.lineWidth=14;x.lineCap='round';x.beginPath();x.arc(CX,CY,R,-Math.PI/2,-Math.PI/2+Math.PI*2*.25);x.stroke();x.restore();
+x.fillStyle='rgba(34,209,30,.9)';x.fillRect(CX-14,CY-R-34,28,14);x.fillRect(CX-5,CY-R-22,10,14);
+for(let i=0;i<12;i++){const a=i*Math.PI/6;x.strokeStyle='rgba(242,245,242,.55)';x.lineWidth=3;x.beginPath();x.moveTo(CX+Math.cos(a)*(R-30),CY+Math.sin(a)*(R-30));x.lineTo(CX+Math.cos(a)*(R-20),CY+Math.sin(a)*(R-20));x.stroke()}
+x.strokeStyle='#F2F5F2';x.lineWidth=6;x.lineCap='round';x.beginPath();x.moveTo(CX,CY);x.lineTo(CX+R*.6,CY);x.stroke();
+x.fillStyle='#22D11E';x.beginPath();x.arc(CX,CY,8,0,7);x.fill();
+// atmospheric haze
+g=x.createRadialGradient(540,HZ,20,540,HZ,600);g.addColorStop(0,'rgba(34,209,30,.12)');g.addColorStop(1,'rgba(34,209,30,0)');x.fillStyle=g;x.fillRect(0,0,W,H);
+// vignette
+g=x.createRadialGradient(540,420,300,540,500,900);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.75)');x.fillStyle=g;x.fillRect(0,0,W,H);
+// grain
+const id=x.getImageData(0,0,W,H),d=id.data;for(let i=0;i<d.length;i+=4){const n=(r()-.5)*18;d[i]+=n;d[i+1]+=n;d[i+2]+=n}x.putImageData(id,0,0);
+</script></body></html>
