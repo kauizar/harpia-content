@@ -1,0 +1,84 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;background:#000}canvas{display:block}
+</style></head><body><canvas id="c" width="1080" height="1000"></canvas>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d'),W=1080,H=1000;
+let seed=11;const r=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+// dark room
+let bg=x.createRadialGradient(540,300,50,540,400,900);bg.addColorStop(0,'#14100d');bg.addColorStop(1,'#030404');
+x.fillStyle=bg;x.fillRect(0,0,W,H);
+// wall texture: faint vertical boards
+for(let i=0;i<W;i+=36){x.fillStyle=`rgba(255,255,255,${.01+r()*.012})`;x.fillRect(i,0,1,H)}
+// perspective calendar plane (Nov 2026: starts Sunday)
+// project grid points: plane tilted back
+function P(u,v){ // u 0..1 across, v 0..1 down the plane
+  const top=90,bot=650; const y=top+(bot-top)*Math.pow(v,1.15);
+  const half=320+190*v; return [540+(u-.5)*2*half,y];
+}
+function quad(u0,v0,u1,v1){const a=P(u0,v0),b=P(u1,v0),cc=P(u1,v1),d=P(u0,v1);x.beginPath();x.moveTo(...a);x.lineTo(...b);x.lineTo(...cc);x.lineTo(...d);x.closePath()}
+// paper
+x.save();quad(0,0,1,1);
+let pg=x.createLinearGradient(0,60,0,640);pg.addColorStop(0,'#1a1714');pg.addColorStop(1,'#2a2420');x.fillStyle=pg;x.fill();
+x.shadowColor='rgba(0,0,0,.8)';x.shadowBlur=60;x.restore();
+// header band
+x.save();quad(0,0,1,.13);x.fillStyle='#0d0f0e';x.fill();x.restore();
+const hdr=P(.5,.075);x.fillStyle='#F2F5F2';x.font='bold 40px Impact, "Anton", sans-serif';x.textAlign='center';x.textBaseline='middle';
+x.save();x.translate(hdr[0],hdr[1]);x.scale(1,.8);x.fillText('N O V E M B E R',0,0);x.restore();
+const days=['S','M','T','W','T','F','S'];
+const rows=5,cols=7,gv0=.16,gv1=1;
+for(let i=0;i<7;i++){const p=P((i+.5)/7,.145);x.fillStyle='#8a918b';x.font='bold 20px sans-serif';x.fillText(days[i],p[0],p[1])}
+// cells
+let day=1;
+for(let rw=0;rw<rows;rw++)for(let cl=0;cl<cols;cl++){
+  if(day>30)continue;
+  const u0=cl/7+.006,u1=(cl+1)/7-.006,v0=gv0+(gv1-gv0)*rw/rows+.006,v1=gv0+(gv1-gv0)*(rw+1)/rows-.006;
+  const isBF=day===27;
+  x.save();quad(u0,v0,u1,v1);
+  x.fillStyle=isBF?'#3a0d0b':'#221d19';x.fill();
+  x.strokeStyle='rgba(255,255,255,.06)';x.lineWidth=1;x.stroke();x.restore();
+  const tl=P(u0+.012,v0+.03),ctr=P((u0+u1)/2,(v0+v1)/2+.02),cw=P(u1,v0)[0]-P(u0,v0)[0];
+  const s=cw/130;
+  x.fillStyle='rgba(242,245,242,.75)';x.font=`600 ${Math.round(20*s)}px sans-serif`;x.textAlign='left';x.fillText(day,tl[0]+4,tl[1]+6*s);
+  // every day stamped SALE tag
+  if(day>=2){
+    x.save();x.translate(ctr[0],ctr[1]);x.rotate((r()-.5)*.35);x.scale(s,s*.82);
+    const red=day>=23&&day<=29;
+    const col=red?'#ff3b2f':'#22D11E';
+    x.shadowColor=col;x.shadowBlur=red?26:14;
+    x.fillStyle=red?'rgba(255,59,47,.92)':'rgba(34,209,30,.85)';
+    x.beginPath();x.moveTo(-46,-17);x.lineTo(34,-17);x.lineTo(50,0);x.lineTo(34,17);x.lineTo(-46,17);x.closePath();x.fill();
+    x.shadowBlur=0;x.fillStyle='#0a0b0a';x.beginPath();x.arc(36,0,4,0,7);x.fill();
+    x.fillStyle='#070908';x.font='bold 20px Impact, sans-serif';x.textAlign='center';x.fillText(red?'SALE':`-${10+Math.floor(r()*5)*5}%`,-6,1);
+    x.restore();
+  }
+  day++;
+}
+// big red circle around Black Friday 27 (hand-drawn) with marker bleed
+(function(){const rw=3,cl=5;const ctr=P((cl+.5)/7,gv0+(gv1-gv0)*(rw+.5)/rows);
+  x.save();x.translate(ctr[0],ctr[1]);x.strokeStyle='#ff2d22';x.lineCap='round';x.shadowColor='#ff2d22';x.shadowBlur=30;
+  for(let k=0;k<2;k++){x.lineWidth=9-k*3;x.beginPath();for(let a=0;a<=Math.PI*2.15;a+=.05){const rr=1+.07*Math.sin(a*3+k);x.lineTo(Math.cos(a)*92*rr,Math.sin(a)*62*rr)}x.stroke()}
+  x.restore();
+  // drips smearing across whole week
+  x.globalCompositeOperation='lighter';
+  let sm=x.createRadialGradient(ctr[0],ctr[1],20,ctr[0],ctr[1],520);sm.addColorStop(0,'rgba(255,40,30,.35)');sm.addColorStop(1,'rgba(255,40,30,0)');x.fillStyle=sm;x.fillRect(0,0,W,H);
+  x.globalCompositeOperation='source-over';
+})();
+// red week band glow over 23-29
+x.save();quad(0,gv0+(gv1-gv0)*3/rows,1,gv0+(gv1-gv0)*4/rows+.03);x.globalCompositeOperation='lighter';x.fillStyle='rgba(255,60,40,.08)';x.fill();x.restore();
+// torn pages flying off top
+const pts=[[60,250],[1030,250],[40,420],[1045,440]];for(let i=0;i<4;i++){const px=pts[i][0],py=pts[i][1],a=(r()-.5)*1.2,w=60+r()*30;
+  x.save();x.translate(px,py);x.rotate(a);x.globalAlpha=.35+r()*.25;
+  x.fillStyle='#e9e4dc';x.fillRect(-w/2,-w*.6,w,w*1.2);x.fillStyle='#c8231b';x.fillRect(-w/2,-w*.6,w,w*.25);
+  x.fillStyle='#222';x.font=`bold ${Math.round(w*.45)}px Impact, sans-serif`;x.textAlign='center';x.fillText(['%','SALE','DEAL','%','-30%','%','NOW','-20%','%'][i],0,w*.15);
+  x.restore()}
+x.globalAlpha=1;
+// overhead spotlight cone
+x.globalCompositeOperation='lighter';
+let sp=x.createRadialGradient(540,-100,50,540,300,700);sp.addColorStop(0,'rgba(255,230,200,.14)');sp.addColorStop(1,'rgba(255,230,200,0)');x.fillStyle=sp;x.fillRect(0,0,W,H);
+for(let i=0;i<200;i++){x.fillStyle=`rgba(255,235,210,${r()*.3})`;x.fillRect(r()*W,r()*620,1.5,1.5)}
+x.globalCompositeOperation='source-over';
+// bottom fade
+let bf=x.createLinearGradient(0,620,0,1000);bf.addColorStop(0,'rgba(7,9,8,0)');bf.addColorStop(1,'#070908');x.fillStyle=bf;x.fillRect(0,620,W,380);
+let v=x.createRadialGradient(540,360,300,540,500,900);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.6)');x.fillStyle=v;x.fillRect(0,0,W,H);
+const id=x.getImageData(0,0,W,H),d=id.data;for(let i=0;i<d.length;i+=4){const n=(Math.random()-.5)*18;d[i]+=n;d[i+1]+=n;d[i+2]+=n}x.putImageData(id,0,0);
+</script></body></html>
