@@ -1,0 +1,62 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;background:#000}canvas{display:block}
+</style></head><body><canvas id="c" width="1080" height="1000"></canvas>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d'),W=1080,H=1000;
+let seed=7;const r=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+// theater darkness
+x.fillStyle='#030504';x.fillRect(0,0,W,H);
+// screen frame (perspective trapezoid)
+const sx0=120,sx1=960,sy0=70,sy1=520;
+// screen content: sunrise over forest arena
+x.save();x.beginPath();x.moveTo(sx0,sy0);x.lineTo(sx1,sy0);x.lineTo(sx1-10,sy1);x.lineTo(sx0+10,sy1);x.closePath();x.clip();
+let g=x.createLinearGradient(0,sy0,0,sy1);g.addColorStop(0,'#0b1a2a');g.addColorStop(.45,'#7a3b1c');g.addColorStop(.72,'#f19a3a');g.addColorStop(1,'#ffd27a');
+x.fillStyle=g;x.fillRect(0,0,W,H);
+// sun
+const sunX=540,sunY=420;
+let sg=x.createRadialGradient(sunX,sunY,0,sunX,sunY,360);sg.addColorStop(0,'rgba(255,250,220,1)');sg.addColorStop(.12,'rgba(255,225,150,.95)');sg.addColorStop(.35,'rgba(255,160,70,.35)');sg.addColorStop(1,'rgba(255,120,40,0)');
+x.fillStyle=sg;x.fillRect(0,0,W,H);
+x.fillStyle='#fff6d8';x.beginPath();x.arc(sunX,sunY,58,0,Math.PI*2);x.fill();
+// sun rays
+x.globalCompositeOperation='lighter';
+for(let i=0;i<22;i++){const a=Math.PI+i/21*Math.PI,len=500;x.fillStyle='rgba(255,210,140,.028)';x.beginPath();x.moveTo(sunX,sunY);x.lineTo(sunX+Math.cos(a-.03)*len,sunY+Math.sin(a-.03)*len);x.lineTo(sunX+Math.cos(a+.03)*len,sunY+Math.sin(a+.03)*len);x.fill()}
+x.globalCompositeOperation='source-over';
+// tree lines (layers)
+function pine(px,base,h,col){const w=h*.32;x.fillStyle=col;x.fillRect(px-2,base-h*.15,4,h*.15);for(let k=0;k<4;k++){const ty=base-h*.15-k*h*.2,tw=w*(1-k*.2);x.beginPath();x.moveTo(px-tw,ty);x.lineTo(px,ty-h*.42);x.lineTo(px+tw,ty);x.fill()}}
+function trees(base,h,col,n){x.fillStyle=col;x.fillRect(0,base-4,W,sy1-base+4);for(let i=0;i<n;i++){pine(i/n*W+r()*20,base,h*(.55+r()*.7),col)}}
+trees(468,70,'rgba(120,55,30,.6)',70);trees(492,95,'#4a2014',52);trees(528,130,'#140806',34);
+// rising embers
+for(let i=0;i<90;i++){const ex=r()*W,ey=sy0+r()*(sy1-sy0);x.fillStyle=`rgba(255,${150+r()*90},80,${.3+r()*.6})`;x.beginPath();x.arc(ex,ey,r()*2.4+.6,0,7);x.fill()}
+x.restore();
+// screen glow spill
+x.globalCompositeOperation='lighter';
+let sp=x.createRadialGradient(540,330,100,540,330,720);sp.addColorStop(0,'rgba(255,150,60,.18)');sp.addColorStop(1,'rgba(255,150,60,0)');x.fillStyle=sp;x.fillRect(0,0,W,H);
+// projector beam from behind/above
+let pb=x.createLinearGradient(540,1000,540,300);pb.addColorStop(0,'rgba(255,230,180,.0)');pb.addColorStop(.3,'rgba(255,220,170,.06)');pb.addColorStop(1,'rgba(255,200,140,.02)');
+x.fillStyle=pb;x.beginPath();x.moveTo(500,-40);x.lineTo(580,-40);x.lineTo(sx1,sy1);x.lineTo(sx0,sy1);x.fill();
+// dust in beam
+for(let i=0;i<260;i++){const t=r(),px=540+(r()-.5)*(80+t*760),py=-40+t*560;x.fillStyle=`rgba(255,235,200,${r()*.35})`;x.fillRect(px,py,1.6,1.6)}
+x.globalCompositeOperation='source-over';
+// side walls
+x.fillStyle='rgba(2,3,3,.9)';x.beginPath();x.moveTo(0,0);x.lineTo(sx0,sy0);x.lineTo(sx0+10,sy1);x.lineTo(0,640);x.fill();
+x.beginPath();x.moveTo(W,0);x.lineTo(sx1,sy0);x.lineTo(sx1-10,sy1);x.lineTo(W,640);x.fill();
+// wall sconces glow
+[[50,300],[1030,300]].forEach(([a,b])=>{let s=x.createRadialGradient(a,b,0,a,b,90);s.addColorStop(0,'rgba(255,170,90,.35)');s.addColorStop(1,'rgba(255,170,90,0)');x.fillStyle=s;x.fillRect(a-90,b-90,180,180)});
+// seat rows (silhouettes, full crowd heads)
+for(let row=0;row<8;row++){const y=560+row*58,sc=.7+row*.14,col=Math.max(2,10-row);
+ // seat backs
+ x.fillStyle=`rgb(${col+6},${col+3},${col+2})`;x.fillRect(0,y+22*sc,W,70);
+ // rim light on seat tops
+ x.fillStyle=`rgba(255,160,80,${.22-row*.02})`;x.fillRect(0,y+22*sc,W,2);
+ // heads
+ const n=Math.round(22-row*1.6);for(let i=0;i<n;i++){if(r()<.08)continue;const hx=(i+.5+(row%2)*.5)/n*W+(r()-.5)*12,hr=17*sc;
+  x.fillStyle=`rgb(${col},${col},${col})`;x.beginPath();x.ellipse(hx,y+6*sc,hr*.85,hr,0,0,7);x.fill();x.fillRect(hx-hr*1.3,y+14*sc,hr*2.6,20*sc);
+  x.fillStyle=`rgba(255,170,90,${.28-row*.03})`;x.beginPath();x.ellipse(hx,y+6*sc-hr*.6,hr*.5,hr*.25,0,Math.PI,0);x.fill();}
+}
+// bottom fade
+let bf=x.createLinearGradient(0,700,0,1000);bf.addColorStop(0,'rgba(7,9,8,0)');bf.addColorStop(1,'#070908');x.fillStyle=bf;x.fillRect(0,700,W,300);
+// vignette
+let v=x.createRadialGradient(540,380,300,540,500,900);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.6)');x.fillStyle=v;x.fillRect(0,0,W,H);
+// grain
+const id=x.getImageData(0,0,W,H),d=id.data;for(let i=0;i<d.length;i+=4){const n=(Math.random()-.5)*18;d[i]+=n;d[i+1]+=n;d[i+2]+=n}x.putImageData(id,0,0);
+</script></body></html>
