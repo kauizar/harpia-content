@@ -14,3 +14,4 @@ Check this before picking a topic: never repeat a topic or angle from the last 3
 - 2026-11-21 | 2026-11-21-walmart-stores-speed | Walmart Q3: stores as the warehouse, speed + ads (asset reuse) | published | media id 18161900506509506 | story: ok
 - 2026-11-21 | 2026-11-21-colts-sunk-cost | Colts cut $88M QB after 8 months: sunk cost is not a plan | published | media id 17961070890017583 | story: ok
 - 2026-11-22 | 2026-11-22-hunger-games-comeback | Hunger Games prequel $44M → $120M: a soft launch is not a verdict | published | media id 18068671151534393 (1st attempt timed out, 2nd ok) | story: ok
+- 2026-11-22 | 2026-11-22-black-friday-week | Black Friday is a week now (Walmart Nov. 23–29): sell a reason, not a date | published | media id 18128782495928761 | story: ok
