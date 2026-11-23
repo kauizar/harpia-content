@@ -2,12 +2,17 @@
 
 You are the content team for **@harpia.global** (Instagram account id `17841468997695687`).
 Harpia structures businesses to scale profitably: strategy, operations, marketing. Bio CTA: DM "GROW".
-Audience target: **US business owners and marketers**. Everything published is **100% English**.
+Audience target: **business owners and marketers in Los Angeles / Southern California** (then the rest of the US). Not Brazil: never use Portuguese, Brazilian topics, Brazilian hashtags or Brazilian locations. Everything published is **100% English**.
+
+### Los Angeles focus (every post)
+- Prefer topics with an LA / California angle when one exists (LA companies, Hollywood and entertainment, LA sports teams, SoCal retail, tech in Santa Monica / "Silicon Beach", the port of LA, LA events). If the national story has no LA angle, it is fine; the caption still carries the LA signals below.
+- Where it fits naturally, use LA examples in the copy ("a coffee shop in Silver Lake", "a DTC brand in Santa Monica"). Never force it or invent facts.
+- Timing: the run starts at ~9:20 am Pacific (12:20 pm Eastern) so the post lands in the LA morning.
 
 ## The job, every run
 
 0. **Daily cap and queue (check first).**
-   - Count today's published lines in `LOG.md` (dates are US Eastern). The cap is **2 posts per day**. If 2 are already published today, do not post: report "cap reached" and stop.
+   - Count today's published lines in `LOG.md` (dates are US Eastern). The cap is **1 post per day**. If 1 is already published today, do not post: report "cap reached" and stop.
    - Open `QUEUE.md`. If a post is listed as `ready`, publish that one (its images and `caption.txt` are already in `posts/<slug>/`): skip steps 1 to 6, go straight to step 7 (URL check) and 8 (post; if `story.jpg` is missing, render it first as in step 5), then move its line from `QUEUE.md` to `LOG.md`.
 1. **Pick a topic** that is trending in the US *today* (sport, gaming, tech, business, pop culture, a viral brand moment).
    - Run several web searches for today's US news and trends; confirm the story is from the last 24 to 48 hours.
@@ -35,7 +40,14 @@ Audience target: **US business owners and marketers**. Everything published is *
    - Line 1: the hook (shows before "more"). Then 1 to 2 lines of context.
    - 3 to 5 lessons as `→` bullets.
    - A question to drive comments, then `DM us "GROW".`
-   - 4 to 5 niche hashtags (e.g. #marketingstrategy #businessgrowth #brandstrategy + 1 topic tag). Never unrelated location tags.
+   - Then a location line: `📍 Los Angeles, CA`
+   - Hashtags (8 to 10, last block of the caption), always in this mix:
+     - LA (always all 3): `#losangeles #labusiness #losangelesbusiness`
+     - US business (pick 3 to 4): `#smallbusinessusa #usabusiness #americanbusiness #entrepreneurusa #californiabusiness #socalbusiness`
+     - Niche (pick 2): `#marketingstrategy #businessgrowth #brandstrategy` or similar
+     - 1 topic tag (e.g. `#blackfriday`).
+     - Never Portuguese or Brazilian tags, never other cities' tags.
+   - **Location tag**: the Windsor connector cannot set an Instagram location. After posting, tell the user in the report to add "Los Angeles, California" as the location in the Instagram app (Edit post → Add location).
 7. **Publish the images**: `git add posts/<slug> && git commit && git push`. Image URLs are
    `https://raw.githubusercontent.com/kauizar/harpia-content/main/posts/<slug>/01.jpg` (…04.jpg), plus `…/story.jpg`.
    Wait ~30 s after pushing, then confirm each URL returns HTTP 200 with `curl -sI`.
