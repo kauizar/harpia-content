@@ -1,0 +1,101 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;background:#000}canvas{display:block}
+</style></head><body><canvas id="c" width="1080" height="1000"></canvas>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d'),W=1080,H=1000;
+let seed=23;const r=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+const HZ=430; // horizon
+// dusk sky
+let sky=x.createLinearGradient(0,0,0,HZ);
+sky.addColorStop(0,'#05070b');sky.addColorStop(.45,'#1a1430');sky.addColorStop(.78,'#5a2a3c');sky.addColorStop(.93,'#c2553a');sky.addColorStop(1,'#f0a050');
+x.fillStyle=sky;x.fillRect(0,0,W,HZ+2);
+// stars
+for(let i=0;i<140;i++){x.fillStyle=`rgba(255,255,255,${r()*.5})`;x.fillRect(r()*W,r()*HZ*.55,1.3,1.3)}
+// sun glow at horizon
+let sg=x.createRadialGradient(540,HZ,10,540,HZ,520);sg.addColorStop(0,'rgba(255,190,110,.75)');sg.addColorStop(.3,'rgba(240,110,70,.25)');sg.addColorStop(1,'rgba(0,0,0,0)');
+x.fillStyle=sg;x.fillRect(0,0,W,HZ+40);
+// distant hills
+x.fillStyle='#2a1a2a';x.beginPath();x.moveTo(0,HZ);
+for(let i=0;i<=W;i+=20){x.lineTo(i,HZ-30-18*Math.sin(i/140)-12*Math.sin(i/57))}x.lineTo(W,HZ);x.fill();
+// downtown skyline silhouette with lit windows
+const towers=[[250,60,150],[312,44,205],[360,70,170],[432,52,262],[486,40,300],[530,62,330],[596,48,250],[648,56,215],[708,40,180],[752,64,150],[820,46,120],[200,46,105],[870,52,95]];
+towers.forEach(([tx,tw,th])=>{
+  let g=x.createLinearGradient(0,HZ-th,0,HZ);g.addColorStop(0,'#141520');g.addColorStop(1,'#0b0b12');
+  x.fillStyle=g;x.fillRect(tx,HZ-th,tw,th);
+  // rim light from sunset
+  x.fillStyle='rgba(255,150,90,.18)';x.fillRect(tx,HZ-th,2,th);
+  for(let wy=HZ-th+10;wy<HZ-8;wy+=11)for(let wx=tx+5;wx<tx+tw-5;wx+=9){if(r()<.22){x.fillStyle=`rgba(255,${200+r()*40|0},${130+r()*60|0},${.35+r()*.5})`;x.fillRect(wx,wy,4,5)}}
+});
+// tallest crown: rooftop beacon
+x.fillStyle='#ff4040';x.beginPath();x.arc(550,HZ-336,3,0,7);x.fill();
+// ground
+let gr=x.createLinearGradient(0,HZ,0,H);gr.addColorStop(0,'#120d12');gr.addColorStop(1,'#030404');
+x.fillStyle=gr;x.fillRect(0,HZ,W,H-HZ);
+// road (perspective)
+const vx=540;
+x.beginPath();x.moveTo(vx-14,HZ);x.lineTo(vx+14,HZ);x.lineTo(W+380,H);x.lineTo(-380,H);x.closePath();
+let rd=x.createLinearGradient(0,HZ,0,H);rd.addColorStop(0,'#2a2028');rd.addColorStop(.5,'#141216');rd.addColorStop(1,'#0a0a0b');x.fillStyle=rd;x.fill();
+// asphalt sheen from sunset
+let sh=x.createRadialGradient(540,HZ+40,5,540,HZ+60,420);sh.addColorStop(0,'rgba(255,170,100,.35)');sh.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=sh;x.fillRect(0,HZ,W,500);
+// edge lines in neon green
+function lerp(a,b,t){return a+(b-a)*t}
+x.strokeStyle='rgba(34,209,30,.85)';x.lineWidth=3;x.shadowColor='#22D11E';x.shadowBlur=18;
+[[vx-12,-300],[vx+12,W+300]].forEach(([a,b])=>{x.beginPath();x.moveTo(a,HZ);x.lineTo(b,H);x.stroke()});
+// center dashes
+for(let i=0;i<14;i++){const t0=Math.pow(i/14,2.1),t1=Math.pow((i+.45)/14,2.1);
+  const y0=lerp(HZ,H,t0),y1=lerp(HZ,H,t1),w0=1+t0*14,w1=1+t1*14;
+  x.fillStyle='rgba(242,245,242,.75)';x.beginPath();x.moveTo(vx-w0/2,y0);x.lineTo(vx+w0/2,y0);x.lineTo(vx+w1/2,y1);x.lineTo(vx-w1/2,y1);x.fill()}
+x.shadowBlur=0;
+// palm trees
+function palm(px,py,h,s){
+  x.save();x.translate(px,py);x.scale(s,s);
+  x.strokeStyle='#07070a';x.lineWidth=10;x.lineCap='round';
+  x.beginPath();x.moveTo(0,0);x.quadraticCurveTo(14,-h*.5,4,-h);x.stroke();
+  x.fillStyle='#07070a';
+  for(let k=0;k<9;k++){const a=-Math.PI/2+(k-4)*0.42;x.save();x.translate(4,-h);x.rotate(a+Math.PI/2);
+    x.beginPath();x.moveTo(0,0);x.quadraticCurveTo(70,-30,130,30);x.quadraticCurveTo(70,-10,0,8);x.fill();x.restore()}
+  x.restore()}
+palm(110,HZ+40,330,1.0);palm(190,HZ+10,260,.75);palm(960,HZ+50,350,1.0);palm(880,HZ+15,250,.7);palm(40,HZ+70,250,.6);
+// car: generic sleek coupe seen from behind-ish 3/4, centered lower
+function car(){
+  x.save();x.translate(540,640);
+  // shadow
+  let s=x.createRadialGradient(0,120,10,0,120,330);s.addColorStop(0,'rgba(0,0,0,.85)');s.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=s;x.beginPath();x.ellipse(0,118,330,46,0,0,7);x.fill();
+  // body
+  let b=x.createLinearGradient(0,-60,0,110);b.addColorStop(0,'#3a3d42');b.addColorStop(.35,'#16181b');b.addColorStop(1,'#060707');
+  x.fillStyle=b;x.beginPath();
+  x.moveTo(-300,80);x.bezierCurveTo(-312,20,-290,-12,-230,-16);x.lineTo(-170,-22);x.quadraticCurveTo(-120,-95,-20,-102);x.lineTo(20,-102);x.quadraticCurveTo(120,-95,170,-22);
+  x.lineTo(230,-16);x.bezierCurveTo(290,-12,312,20,300,80);x.quadraticCurveTo(296,100,270,104);x.lineTo(-270,104);x.quadraticCurveTo(-296,100,-300,80);x.closePath();x.fill();
+  // haunch highlights
+  x.strokeStyle='rgba(255,180,130,.35)';x.lineWidth=2;
+  x.beginPath();x.moveTo(-300,60);x.bezierCurveTo(-310,10,-285,-12,-230,-16);x.stroke();
+  x.beginPath();x.moveTo(300,60);x.bezierCurveTo(310,10,285,-12,230,-16);x.stroke();
+  // center crease
+  x.strokeStyle='rgba(255,255,255,.07)';x.beginPath();x.moveTo(-240,50);x.lineTo(240,50);x.stroke();
+  // rear glass
+  let gl=x.createLinearGradient(0,-100,0,-20);gl.addColorStop(0,'#2b2f3b');gl.addColorStop(1,'#0c0e12');
+  x.fillStyle=gl;x.beginPath();x.moveTo(-150,-22);x.quadraticCurveTo(-105,-88,-15,-92);x.lineTo(35,-92);x.quadraticCurveTo(125,-88,160,-22);x.closePath();x.fill();
+  // sunset reflection on glass
+  x.fillStyle='rgba(255,150,90,.22)';x.beginPath();x.moveTo(-100,-70);x.lineTo(60,-90);x.lineTo(80,-80);x.lineTo(-90,-60);x.fill();
+  // roof highlight
+  x.strokeStyle='rgba(255,190,140,.55)';x.lineWidth=2;x.beginPath();x.moveTo(-160,-22);x.quadraticCurveTo(-115,-98,-20,-104);x.lineTo(40,-104);x.quadraticCurveTo(135,-98,170,-22);x.stroke();
+  // full-width taillight bar (green to stay on brand)
+  x.shadowColor='#22D11E';x.shadowBlur=40;x.fillStyle='#5CFF4D';x.fillRect(-262,16,524,8);
+  x.shadowBlur=70;x.fillStyle='rgba(34,209,30,.9)';x.fillRect(-262,18,524,4);x.shadowBlur=0;
+  // bumper line + diffuser
+  x.fillStyle='#030303';x.fillRect(-230,72,460,30);
+  x.fillStyle='rgba(255,255,255,.06)';x.fillRect(-230,72,460,2);
+  // wheels
+  x.fillStyle='#020202';x.beginPath();x.roundRect(-282,88,66,40,8);x.roundRect(216,88,66,40,8);x.fill();
+  x.restore()}
+let tg=x.createRadialGradient(540,780,10,540,780,420);tg.addColorStop(0,'rgba(34,209,30,.32)');tg.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=tg;x.fillRect(0,640,W,360);
+car();
+// "START" style line across road under car? subtle checkered start strip
+for(let i=0;i<40;i++){for(let j=0;j<2;j++){if((i+j)%2){const y=860+j*14;x.fillStyle='rgba(242,245,242,.12)';x.fillRect(-100+i*32,y,32,14)}}}
+// haze
+let hz=x.createLinearGradient(0,HZ-60,0,HZ+80);hz.addColorStop(0,'rgba(255,160,110,0)');hz.addColorStop(.5,'rgba(255,160,110,.12)');hz.addColorStop(1,'rgba(255,160,110,0)');x.fillStyle=hz;x.fillRect(0,HZ-60,W,140);
+// vignette
+let v=x.createRadialGradient(540,450,250,540,500,820);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.7)');x.fillStyle=v;x.fillRect(0,0,W,H);
+// grain
+const id=x.getImageData(0,0,W,H),d=id.data;for(let i=0;i<d.length;i+=4){const n=(r()-.5)*22;d[i]+=n;d[i+1]+=n;d[i+2]+=n}x.putImageData(id,0,0);
+</script></body></html>

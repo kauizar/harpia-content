@@ -1,0 +1,37 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Anton;src:url(../../template/fonts/anton-latin-400-normal.woff2)}
+@font-face{font-family:Outfit;font-weight:400;src:url(../../template/fonts/outfit-latin-400-normal.woff2)}
+@font-face{font-family:Outfit;font-weight:600;src:url(../../template/fonts/outfit-latin-600-normal.woff2)}
+@font-face{font-family:Outfit;font-weight:800;src:url(../../template/fonts/outfit-latin-800-normal.woff2)}
+:root{--g:#22D11E;--bg:#070908;--ink:#F2F5F2;--mute:#9AA39B;--line:rgba(255,255,255,.06)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);font-family:Outfit,sans-serif;color:var(--ink)}
+.story{width:1080px;height:1920px;position:relative;overflow:hidden;background:var(--bg)}
+.grid{position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:90px 90px;mask-image:radial-gradient(ellipse at 50% 45%,#000 25%,transparent 75%)}
+.glow{position:absolute;border-radius:50%;filter:blur(140px);background:var(--g)}
+/* Instagram safe zone: keep content between ~y 250 and ~y 1670 */
+.top{position:absolute;top:310px;left:108px;right:108px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:14px;font-weight:800;font-size:28px;letter-spacing:.14em}
+.brand svg{height:36px;width:32px}
+.new{display:flex;align-items:center;gap:12px;font-size:22px;font-weight:800;letter-spacing:.24em;color:var(--g)}
+.new:before{content:"";width:12px;height:12px;border-radius:50%;background:var(--g);box-shadow:0 0 0 8px rgba(34,209,30,.15)}
+.card{position:absolute;left:108px;top:400px;width:864px;height:1080px;border-radius:30px;overflow:hidden;border:2px solid rgba(34,209,30,.55);box-shadow:0 40px 120px rgba(0,0,0,.7),0 0 90px rgba(34,209,30,.18)}
+.card img{width:100%;height:100%;display:block;object-fit:cover}
+.cta{position:absolute;left:108px;right:108px;top:1538px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.cta p{font-size:32px;line-height:1.25;font-weight:600;max-width:470px}
+.cta p span{color:var(--g)}
+.pill{background:var(--g);color:#050605;border-radius:999px;padding:20px 38px;font-size:26px;font-weight:800;letter-spacing:.06em;white-space:nowrap}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="h" viewBox="195 155 535 615"><polygon fill="#22D11E" points="203,245 375,162 375,765 203,765"/><polygon fill="#22D11E" points="385,500 540,332 722,332 722,600 555,755 555,500"/></symbol>
+</defs></svg>
+<section class="story">
+  <div class="grid"></div>
+  <div class="glow" style="width:760px;height:760px;left:160px;top:580px;opacity:.16"></div>
+  <div class="top"><div class="brand"><svg><use href="#h"/></svg>HARPIA</div><div class="new">NEW POST</div></div>
+  <div class="card"><img src="01.jpg"></div>
+  <div class="cta"><p>Full breakdown <span>on our feed.</span></p><div class="pill">DM “GROW”</div></div>
+</section>
+</body></html>
