@@ -1,0 +1,75 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;background:#000}canvas{display:block}
+</style></head><body><canvas id="c" width="1080" height="1000"></canvas>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d'),W=1080,H=1000;
+let seed=1124;const r=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+const HZ=520;
+// dusk sky
+let sky=x.createLinearGradient(0,0,0,HZ);
+sky.addColorStop(0,'#04060c');sky.addColorStop(.4,'#14183a');sky.addColorStop(.7,'#4a2a50');sky.addColorStop(.88,'#c0583e');sky.addColorStop(1,'#f4a456');
+x.fillStyle=sky;x.fillRect(0,0,W,HZ+2);
+for(let i=0;i<160;i++){x.fillStyle=`rgba(255,255,255,${r()*.55})`;x.fillRect(r()*W,r()*HZ*.5,1.3,1.3)}
+let sg=x.createRadialGradient(300,HZ,10,300,HZ,600);sg.addColorStop(0,'rgba(255,190,110,.8)');sg.addColorStop(.3,'rgba(240,110,70,.25)');sg.addColorStop(1,'rgba(0,0,0,0)');
+x.fillStyle=sg;x.fillRect(0,0,W,HZ+40);
+// distant hills
+x.fillStyle='#2a1a2c';x.beginPath();x.moveTo(0,HZ);
+for(let i=0;i<=W;i+=20){x.lineTo(i,HZ-22-14*Math.sin(i/160)-9*Math.sin(i/47))}x.lineTo(W,HZ);x.fill();
+// palm trees silhouettes
+function palm(px,h,s){x.strokeStyle='#08070c';x.lineWidth=5*s;x.beginPath();x.moveTo(px,HZ+4);x.quadraticCurveTo(px+10*s,HZ-h/2,px+4*s,HZ-h);x.stroke();
+ x.fillStyle='#08070c';for(let a=0;a<9;a++){const ang=-Math.PI/2+(a-4)*0.42;x.beginPath();x.moveTo(px+4*s,HZ-h);
+ const ex=px+4*s+Math.cos(ang)*48*s,ey=HZ-h+Math.sin(ang)*30*s+18*s;x.quadraticCurveTo(px+4*s+Math.cos(ang)*28*s,HZ-h+Math.sin(ang)*34*s,ex,ey);
+ x.quadraticCurveTo(px+4*s+Math.cos(ang)*26*s,HZ-h+Math.sin(ang)*26*s+6*s,px+4*s,HZ-h);x.fill()}}
+[[60,170,1],[118,210,1.1],[985,160,.9],[1050,230,1.15]].forEach(p=>palm(...p));
+// control tower (generic)
+x.fillStyle='#0a0a12';x.fillRect(880,HZ-230,26,230);x.beginPath();x.moveTo(855,HZ-230);x.lineTo(931,HZ-230);x.lineTo(920,HZ-272);x.lineTo(866,HZ-272);x.fill();
+x.fillStyle='rgba(120,255,140,.55)';x.fillRect(868,HZ-266,50,14);x.fillStyle='#0a0a12';x.fillRect(862,HZ-286,62,14);
+x.fillStyle='#ff3a3a';x.beginPath();x.arc(893,HZ-292,4,0,7);x.fill();
+// terminal low building with lights
+x.fillStyle='#0d0c14';x.fillRect(380,HZ-46,560,46);x.fillRect(560,HZ-70,200,24);
+for(let wx=390;wx<930;wx+=10){if(r()<.55){x.fillStyle=`rgba(255,${200+r()*40|0},140,${.3+r()*.5})`;x.fillRect(wx,HZ-34,5,6)}}
+// ground
+let gr=x.createLinearGradient(0,HZ,0,H);gr.addColorStop(0,'#141018');gr.addColorStop(1,'#030404');
+x.fillStyle=gr;x.fillRect(0,HZ,W,H-HZ);
+// runway perspective
+const vx=430;
+x.beginPath();x.moveTo(vx-10,HZ);x.lineTo(vx+10,HZ);x.lineTo(W+250,H);x.lineTo(-450,H);x.closePath();
+let rd=x.createLinearGradient(0,HZ,0,H);rd.addColorStop(0,'#2a2230');rd.addColorStop(1,'#0b0b0d');x.fillStyle=rd;x.fill();
+let sh=x.createRadialGradient(400,HZ+30,5,400,HZ+60,480);sh.addColorStop(0,'rgba(255,170,100,.3)');sh.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=sh;x.fillRect(0,HZ,W,H-HZ);
+// centerline dashes
+for(let i=0;i<16;i++){const t1=Math.pow(i/16,2.2),t2=Math.pow((i+.5)/16,2.2);const y1=HZ+(H-HZ)*t1,y2=HZ+(H-HZ)*t2;
+ const cx1=vx+(440-vx)*t1,cx2=vx+(440-vx)*t2,w1=1+t1*14,w2=1+t2*14;
+ x.fillStyle='rgba(240,240,230,.7)';x.beginPath();x.moveTo(cx1-w1/2,y1);x.lineTo(cx1+w1/2,y1);x.lineTo(cx2+w2/2,y2);x.lineTo(cx2-w2/2,y2);x.closePath();x.fill()}
+// edge lights (green near, white/amber)
+function edge(endX,col){for(let i=1;i<40;i++){const t=Math.pow(i/40,1.8);const px=vx+(endX-vx)*t,py=HZ+(H-HZ)*t;const rr=1+t*6;
+ let g=x.createRadialGradient(px,py,0,px,py,rr*5);g.addColorStop(0,col);g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(px-rr*5,py-rr*5,rr*10,rr*10);
+ x.fillStyle='#fff';x.beginPath();x.arc(px,py,rr*.6,0,7);x.fill()}}
+edge(-450,'rgba(255,200,120,.9)');edge(W+250,'rgba(255,200,120,.9)');
+// green threshold bar
+for(let i=0;i<22;i++){const px=-200+i*58,py=H-40;let g=x.createRadialGradient(px,py,0,px,py,30);g.addColorStop(0,'rgba(34,209,30,.95)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(px-30,py-30,60,60)}
+// many plane light trails in the sky (the rush)
+function trail(x0,y0,x1,y1,a){let g=x.createLinearGradient(x0,y0,x1,y1);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(1,`rgba(255,240,220,${a})`);
+ x.strokeStyle=g;x.lineWidth=2;x.beginPath();x.moveTo(x0,y0);x.lineTo(x1,y1);x.stroke();x.fillStyle=`rgba(255,80,80,${a})`;x.beginPath();x.arc(x1,y1,2.4,0,7);x.fill()}
+for(let i=0;i<9;i++){const sx=120+r()*260,sy=90+r()*260;trail(sx-160-r()*120,sy+60+r()*60,sx,sy,.35+r()*.45)}
+// hero jet climbing (generic silhouette)
+x.save();x.translate(600,250);x.rotate(-0.32);
+let jg=x.createLinearGradient(-220,0,220,0);jg.addColorStop(0,'#1a1a26');jg.addColorStop(1,'#2c2a38');x.fillStyle=jg;
+x.beginPath();x.ellipse(0,0,230,24,0,0,7);x.fill();
+x.beginPath();x.moveTo(-30,8);x.lineTo(-120,120);x.lineTo(-80,120);x.lineTo(60,10);x.fill(); // near wing
+x.beginPath();x.moveTo(-20,-8);x.lineTo(-90,-80);x.lineTo(-62,-80);x.lineTo(40,-8);x.fill(); // far wing
+x.beginPath();x.moveTo(-200,-6);x.lineTo(-240,-92);x.lineTo(-205,-92);x.lineTo(-150,-10);x.fill(); // tail fin
+x.beginPath();x.moveTo(-190,6);x.lineTo(-250,44);x.lineTo(-228,46);x.lineTo(-160,8);x.fill();
+x.fillStyle='#14141c';x.beginPath();x.ellipse(-50,58,34,13,-0.3,0,7);x.fill();
+// rim light from sunset
+x.strokeStyle='rgba(255,160,100,.55)';x.lineWidth=2;x.beginPath();x.ellipse(0,0,230,24,0,Math.PI*.1,Math.PI*.9);x.stroke();
+// landing lights
+let ll=x.createRadialGradient(170,10,0,170,10,140);ll.addColorStop(0,'rgba(255,255,240,.95)');ll.addColorStop(.2,'rgba(255,250,220,.35)');ll.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=ll;x.fillRect(30,-130,280,280);
+x.fillStyle='#22D11E';x.beginPath();x.arc(-112,118,5,0,7);x.fill();
+let gg=x.createRadialGradient(-112,118,0,-112,118,30);gg.addColorStop(0,'rgba(34,209,30,.7)');gg.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=gg;x.fillRect(-142,88,60,60);
+x.fillStyle='#ff3030';x.beginPath();x.arc(-232,-92,4,0,7);x.fill();
+x.restore();
+// haze + grain
+let hz=x.createLinearGradient(0,HZ-60,0,HZ+80);hz.addColorStop(0,'rgba(255,150,100,0)');hz.addColorStop(.5,'rgba(255,150,100,.12)');hz.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=hz;x.fillRect(0,HZ-60,W,140);
+const id=x.getImageData(0,0,W,H),d=id.data;for(let i=0;i<d.length;i+=4){const n=(r()-.5)*18;d[i]+=n;d[i+1]+=n;d[i+2]+=n}x.putImageData(id,0,0);
+let v=x.createRadialGradient(W/2,H/2,300,W/2,H/2,800);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.55)');x.fillStyle=v;x.fillRect(0,0,W,H);
+</script></body></html>
