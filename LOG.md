@@ -18,3 +18,4 @@ Check this before picking a topic: never repeat a topic or angle from the last 3
 - 2026-11-23 | 2026-11-23-la-auto-show-test-drive | LA Auto Show (Nov. 20–29): 16 of 24 brands offer test drives, sell the drive not the car | published | media id 17915789499478951 | story: ok
 - 2026-11-24 | 2026-11-24-lax-thanksgiving-peak | LAX Thanksgiving 2.6M travelers, holiday is the lightest day: plan for real peaks, not the calendar | published | media id 18107351816011857 | story: ok
 - 2026-11-25 | 2026-11-25-ca-right-to-human | California AB 1609 (Jan. 1, 2027): your chatbot needs a human exit, 15-min good-faith rule | published | media id 18002381049013391 | story: ok
+- 2026-11-26 | 2026-11-26-ai-shopping-thanksgiving | Adobe: AI-referred retail traffic +159% on Thanksgiving: make your store readable by AI | published | media id 18111992381569593 | story: ok
