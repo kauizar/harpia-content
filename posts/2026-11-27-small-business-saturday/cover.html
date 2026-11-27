@@ -1,0 +1,76 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;background:#000}canvas{display:block}
+</style></head><body><canvas id="c" width="1080" height="1000"></canvas>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d'),W=1080,H=1000;
+let seed=1127;const r=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+function rr(px,py,w,h,rad){x.beginPath();x.moveTo(px+rad,py);x.arcTo(px+w,py,px+w,py+h,rad);x.arcTo(px+w,py+h,px,py+h,rad);x.arcTo(px,py+h,px,py,rad);x.arcTo(px,py,px+w,py,rad);x.closePath()}
+// dusk sky
+let sky=x.createLinearGradient(0,0,0,520);sky.addColorStop(0,'#0a0f24');sky.addColorStop(.45,'#3a2552');sky.addColorStop(.8,'#c2574a');sky.addColorStop(1,'#f19a5a');
+x.fillStyle=sky;x.fillRect(0,0,W,H);
+for(let i=0;i<90;i++){x.fillStyle=`rgba(255,255,255,${r()*.4})`;x.fillRect(r()*W,r()*180,1.2,1.2)}
+let sun=x.createRadialGradient(540,520,10,540,520,520);sun.addColorStop(0,'rgba(255,190,110,.55)');sun.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=sun;x.fillRect(0,0,W,H);
+// distant hills + skyline silhouette
+x.fillStyle='#2a1a35';x.beginPath();x.moveTo(0,520);for(let i=0;i<=W;i+=20)x.lineTo(i,430-28*Math.sin(i/170)-12*Math.sin(i/53));x.lineTo(W,520);x.fill();
+x.fillStyle='#1c1228';[[420,40,90],[470,30,140],[510,46,110],[566,34,170],[610,40,120],[660,30,95]].forEach(([px,w,h])=>x.fillRect(px,520-h,w,h));
+// street level dark band + neighbor buildings
+let gb=x.createLinearGradient(0,500,0,780);gb.addColorStop(0,'#1a1220');gb.addColorStop(1,'#0d0a0e');x.fillStyle=gb;x.fillRect(0,500,W,300);
+[[0,70,230],[30,150,200],[860,120,260],[960,120,190]].forEach(([px,w,h])=>{x.fillStyle='#120d14';x.fillRect(px,770-h,w,h);
+ for(let yy=770-h+16;yy<760;yy+=26)for(let xx=px+10;xx<px+w-14;xx+=22){if(r()<.45){x.fillStyle=`rgba(255,${180+r()*60|0},110,${.25+r()*.5})`;x.fillRect(xx,yy,10,12)}}});
+// palms
+function palm(px,h,s){const by=560;x.strokeStyle='#0b0710';x.lineWidth=6*s;x.beginPath();x.moveTo(px,by);x.quadraticCurveTo(px+14*s,by-h/2,px+5*s,by-h);x.stroke();
+ x.fillStyle='#0b0710';for(let a=0;a<10;a++){const ang=-Math.PI/2+(a-4.5)*0.4;x.beginPath();x.moveTo(px+5*s,by-h);
+ const ex=px+5*s+Math.cos(ang)*58*s,ey=by-h+Math.sin(ang)*30*s+22*s;x.quadraticCurveTo(px+5*s+Math.cos(ang)*30*s,by-h+Math.sin(ang)*36*s,ex,ey);
+ x.quadraticCurveTo(px+5*s+Math.cos(ang)*28*s,by-h+Math.sin(ang)*26*s+7*s,px+5*s,by-h);x.fill()}}
+[[60,420,1.3],[150,330,1],[1010,440,1.35],[930,300,.95]].forEach(p=>palm(...p));
+// storefront building
+const BX=220,BY=170,BW=640,BH=600;
+let wall=x.createLinearGradient(BX,0,BX+BW,0);wall.addColorStop(0,'#1d1a1c');wall.addColorStop(.5,'#2b2629');wall.addColorStop(1,'#151314');
+x.fillStyle=wall;x.fillRect(BX,BY,BW,BH);
+// stucco texture
+for(let i=0;i<5000;i++){x.fillStyle=`rgba(255,255,255,${r()*.035})`;x.fillRect(BX+r()*BW,BY+r()*BH,2,2)}
+// parapet
+x.fillStyle='#120f11';x.fillRect(BX-20,BY-24,BW+40,30);
+// sign board (blank, glowing edge)
+x.fillStyle='#0c0d0c';rr(BX+120,BY+40,BW-240,70,10);x.fill();
+x.strokeStyle='rgba(34,209,30,.85)';x.lineWidth=3;x.shadowColor='#22D11E';x.shadowBlur=24;rr(BX+120,BY+40,BW-240,70,10);x.stroke();x.shadowBlur=0;
+x.fillStyle='rgba(242,245,242,.85)';x.font='700 34px Arial';x.textAlign='center';x.fillText('LOCAL SHOP',540,BY+88);
+// awning, striped
+const AY=BY+140;
+for(let i=0;i<10;i++){const ax=BX+i*BW/10;x.fillStyle=i%2?'#0f3a14':'#e9ece6';x.beginPath();x.moveTo(ax,AY);x.lineTo(ax+BW/10,AY);x.lineTo(ax+BW/10+6,AY+80);x.lineTo(ax+6,AY+80);x.fill();
+ x.beginPath();x.arc(ax+BW/20+6,AY+80,BW/20,0,Math.PI);x.fill()}
+x.fillStyle='rgba(0,0,0,.25)';x.fillRect(BX,AY,BW,10);
+// windows warm interior
+function win(wx,wy,ww,wh){let g=x.createLinearGradient(0,wy,0,wy+wh);g.addColorStop(0,'#ffcf86');g.addColorStop(1,'#d27a37');x.fillStyle=g;x.fillRect(wx,wy,ww,wh);
+ // shelves + goods
+ for(let s=0;s<3;s++){const sy=wy+60+s*80;x.fillStyle='rgba(60,30,10,.6)';x.fillRect(wx+10,sy,ww-20,6);
+  for(let k=0;k<6;k++){const gw=18+r()*22,gh=22+r()*34,gx=wx+18+k*((ww-36)/6);x.fillStyle=['#7a3b1c','#1f4a2a','#3a2a5a','#8c5a20','#22D11E'][r()*5|0];x.globalAlpha=.75;x.fillRect(gx,sy-gh,gw,gh);x.globalAlpha=1}}
+ x.strokeStyle='#0c0b0b';x.lineWidth=10;x.strokeRect(wx,wy,ww,wh);x.lineWidth=5;x.beginPath();x.moveTo(wx+ww/2,wy);x.lineTo(wx+ww/2,wy+wh);x.stroke();
+ x.fillStyle='rgba(255,255,255,.08)';x.beginPath();x.moveTo(wx+20,wy);x.lineTo(wx+80,wy);x.lineTo(wx+20,wy+120);x.fill()}
+win(BX+40,AY+120,200,300);win(BX+BW-240,AY+120,200,300);
+// door
+const DX=540-80,DY=AY+110,DW=160,DH=330;
+let dg=x.createLinearGradient(0,DY,0,DY+DH);dg.addColorStop(0,'#ffd99a');dg.addColorStop(1,'#e08a45');x.fillStyle=dg;x.fillRect(DX,DY,DW,DH);
+x.strokeStyle='#0a0909';x.lineWidth=12;x.strokeRect(DX,DY,DW,DH);
+x.fillStyle='#0a0909';x.fillRect(DX+DW-34,DY+170,10,40);
+// OPEN neon on door
+x.save();x.shadowColor='#22D11E';x.shadowBlur=30;x.strokeStyle='#5cff4d';x.lineWidth=4;rr(DX+24,DY+40,DW-48,58,12);x.stroke();
+x.fillStyle='#7bff6b';x.font='900 36px Arial';x.textAlign='center';x.fillText('OPEN',540,DY+83);x.restore();
+// door light spill onto sidewalk
+let spill=x.createRadialGradient(540,DY+DH,10,540,DY+DH+40,420);spill.addColorStop(0,'rgba(255,200,120,.55)');spill.addColorStop(1,'rgba(0,0,0,0)');
+// sidewalk
+let sw=x.createLinearGradient(0,BY+BH,0,H);sw.addColorStop(0,'#2a2422');sw.addColorStop(1,'#070606');x.fillStyle=sw;x.fillRect(0,BY+BH,W,H-BY-BH);
+x.fillStyle=spill;x.fillRect(0,BY+BH-40,W,H);
+x.strokeStyle='rgba(0,0,0,.35)';x.lineWidth=2;for(let i=0;i<8;i++){const px=i*150+r()*20;x.beginPath();x.moveTo(px,BY+BH);x.lineTo(px-80+i*20,H);x.stroke()}
+// string lights across top
+x.strokeStyle='rgba(20,15,15,.9)';x.lineWidth=2;x.beginPath();x.moveTo(0,90);x.quadraticCurveTo(540,190,W,80);x.stroke();
+for(let i=0;i<=24;i++){const t=i/24,px=t*W,py=(1-t)*(1-t)*90+2*(1-t)*t*190+t*t*80+8;
+ let g=x.createRadialGradient(px,py,0,px,py,26);g.addColorStop(0,'rgba(255,225,160,.95)');g.addColorStop(.25,'rgba(255,200,120,.45)');g.addColorStop(1,'rgba(255,200,120,0)');x.fillStyle=g;x.beginPath();x.arc(px,py,26,0,7);x.fill()}
+// shopping bag on step, green handle, with heart-free simple tag
+function bag(bx,by,w,h,col){x.fillStyle=col;x.beginPath();x.moveTo(bx,by);x.lineTo(bx+w,by);x.lineTo(bx+w-6,by+h);x.lineTo(bx+6,by+h);x.fill();
+ x.fillStyle='rgba(255,255,255,.07)';x.fillRect(bx+w*.62,by,w*.38-6,h);x.strokeStyle='#22D11E';x.lineWidth=6;x.beginPath();x.arc(bx+w/2,by,w*.24,Math.PI,0);x.stroke()}
+bag(650,BY+BH-10,110,140,'#efe9dd');bag(740,BY+BH+20,90,110,'#0f3a14');
+// grain + vignette
+const id=x.getImageData(0,0,W,H),d=id.data;for(let i=0;i<d.length;i+=4){const n=(r()-.5)*18;d[i]+=n;d[i+1]+=n;d[i+2]+=n}x.putImageData(id,0,0);
+let v=x.createRadialGradient(W/2,H*.4,300,W/2,H/2,820);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.6)');x.fillStyle=v;x.fillRect(0,0,W,H);
+</script></body></html>
